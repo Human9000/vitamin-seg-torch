@@ -2,30 +2,40 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from network import SegVitamin
-from dataset import EcgDataset, DataLoader
+from network.segvitamin import SegVitamin
+from dataset._dataset import MyDataset, DataLoader
 
 epochs = 10000
 batch_size = 4
 
+# 下面的内容可以修改为适合你的任务的损失函数
+def loss_func(pred, gt): 
+    # 由于背景过多，采用选择器均衡一下
+    select1 = 1. * (gt == 1)
+    select2 = 1. * (0.3 <= gt) * (gt < 1)
+    select3 = 1. * (gt < 0.3)
 
-def loss_func(pred: torch.Tensor, gt: torch.Tensor):
-    err_p = (((gt - pred).pow(2) * gt).sum(dim=0) / (gt.sum(dim=0) + 1)).mean()  # 正样本，每个类的，正样本均衡
-    err_n = (((gt - pred).pow(2) * (1 - gt)).sum(dim=0) / ((1 - gt).sum(dim=0) + 1)).mean()  # 负样本，每个类的，负样本均衡
-    loss = err_p + err_n  # mean代表类间均衡，+代表类内均衡
+    # 方差误差
+    err = (p - gt).pow(2)
+
+    # 均衡的均方差
+    loss1 = (err * select1).sum() / (select1.sum() + 1)
+    loss2 = (err * select2).sum() / (select2.sum() + 1)
+    loss3 = (err * select3).sum() / (select3.sum() + 1)
+
+    loss =  loss1 + loss2 + loss3
     return loss
 
-
+    
 if __name__ == '__main__':
-    ecg_dataset = EcgDataset(10, True)  # 获取 10s 的数据
-    loader = DataLoader(ecg_dataset, batch_size, True, num_workers=2)
+    my_dataset = MyDataset(10, True)  # 获取 10s 的数据
+    loader = DataLoader(my_dataset, batch_size, True, num_workers=2)
 
     net = SegVitamin(size=(1024, 1536), fact=(2, 2), in_chans=1, out_channel=13)
     net.train()
     net.cuda()
     try:
-        save_data = torch.load(f"weights/SegVitamin2.pth")
-        # 1/0
+        save_data = torch.load(f"weights/SegVitamin.pth") 
     except:
         print('No weights found, starting from scratch')
         save_data = {'loss_s': [1e9],
@@ -54,23 +64,8 @@ if __name__ == '__main__':
                 mask = mask.cuda().float()
 
                 feature = feature.cuda().float()
-                p = net(mask)
-
-                # 由于背景过多，采用选择器均衡一下
-                select1 = 1. * (feature == 1)
-                select2 = 1. * (0.3 <= feature) * (feature < 1)
-                select3 = 1. * (feature < 0.3)
-
-                # 方差误差
-                err = (p - feature).pow(2)
-
-                # 均衡的均方差
-                loss1 = (err * select1).sum() / (select1.sum() + 1)
-                loss2 = (err * select2).sum() / (select2.sum() + 1)
-                loss3 = (err * select3).sum() / (select3.sum() + 1)
-
-                loss =  loss1 + loss2 + loss3
-
+                p = net(mask) 
+                loss =  loss_func(p, feature) 
                 loss.backward()
                 opt.step()
                 avgloss += loss.item()
