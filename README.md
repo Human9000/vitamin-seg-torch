@@ -1,5 +1,9 @@
 这是使用vitamin作为backbone的纯分割项目，提供了简单易懂的分割框架（非建造者模式架构，适合个人和小白实验）
 
+
+采用SegVitamin(size=(512, 512), fact=(2, 2), in_chans=1, out_channel=13)测试模型的计算量和参数量为('15.68 GMac', '24.76 M')
+
+下面是模型的详细参数及计算量分布情况
 ```bash
 SegVitamin(
   24.65 M, 99.553% Params, 15.64 GMac, 99.771% MACs, 
@@ -535,5 +539,4 @@ SegVitamin(
     (16): Conv2d(7.54 k, 0.030% Params, 494.14 MMac, 3.152% MACs, 144, 52, kernel_size=(1, 1), stride=(1, 1))
   )
 )
-('15.68 GMac', '24.76 M')
 ```
