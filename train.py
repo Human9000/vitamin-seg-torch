@@ -8,6 +8,7 @@ from dataset._dataset import MyDataset, DataLoader
 # 下面是一系列配置参数
 epochs = 10000
 batch_size = 4
+weights_path = f"weights/SegVitamin.pth"
 
 # 下面的内容可以修改为适合你的任务的损失函数
 def loss_func(pred, gt): 
@@ -29,14 +30,13 @@ def loss_func(pred, gt):
 
     
 if __name__ == '__main__':
-    my_dataset = MyDataset(10, True)  # 获取 10s 的数据
+    my_dataset = MyDataset(False)  # 获取 10s 的数据
     loader = DataLoader(my_dataset, batch_size, True, num_workers=2)
-
     net = SegVitamin(size=(1024, 1536), fact=(2, 2), in_chans=1, out_channel=13)
     net.train()
     net.cuda()
     try:
-        save_data = torch.load(f"weights/SegVitamin.pth") 
+        save_data = torch.load(weights_path) 
     except:
         print('No weights found, starting from scratch')
         save_data = {'loss_s': [1e9],
@@ -63,7 +63,6 @@ if __name__ == '__main__':
             for mask, feature in tbr:
                 opt.zero_grad()
                 mask = mask.cuda().float()
-
                 feature = feature.cuda().float()
                 p = net(mask) 
                 loss =  loss_func(p, feature) 
@@ -81,9 +80,9 @@ if __name__ == '__main__':
         save_data['epoch_s'].append(save_data['epoch_s'][-1] + 1)
         save_data['loss_s'].append(avgloss)
         save_data['last_weights'] = net.state_dict()
-        if save_data['best_loss'] > save_data['loss_s'][-1]:
+        if save_data['best_loss'] > save_data['loss_s'][-1]: # 保存最优权重
             save_data['best_loss'] = save_data['loss_s'][-1]
             save_data['best_epoch'] = save_data['epoch_s'][-1]
             save_data['best_weights'] = net.state_dict()
-        torch.save(save_data, f"weights/SegVitamin2.pth")
+        torch.save(save_data, weights_path)  # 更新权重日志文件
         print(f"save success")
