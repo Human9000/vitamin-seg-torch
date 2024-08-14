@@ -5,6 +5,7 @@ from tqdm import tqdm
 from network.segvitamin import SegVitamin
 from dataset._dataset import MyDataset, DataLoader
 
+# 下面是一系列配置参数
 epochs = 10000
 batch_size = 4
 
