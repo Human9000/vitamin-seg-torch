@@ -7,26 +7,25 @@
 分别作为en1,en2,...,en6 这些进行通道拼接，然后经过解码器输出分割结果
 解码器如下所示(采用了：组反卷积，通道重组，批标准化，Relu激活，进行组合得到)
 ```bash
-(up): Sequential(
-    2.86 M, 11.558% Params, 9.85 GMac, 62.854% MACs, 
-    (0): ConvTranspose2d(1.77 M, 7.150% Params, 1.81 GMac, 11.566% MACs, 2304, 1152, kernel_size=(2, 2), stride=(2, 2), groups=6)
-    (1): ChannelShuffle(0, 0.000% Params, 0.0 Mac, 0.000% MACs, )
-    (2): BatchNorm2d(2.3 k, 0.009% Params, 2.36 MMac, 0.015% MACs, 1152, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (3): ReLU(0, 0.000% Params, 1.18 MMac, 0.008% MACs, )
-    (4): ConvTranspose2d(442.94 k, 1.789% Params, 1.81 GMac, 11.573% MACs, 1152, 576, kernel_size=(2, 2), stride=(2, 2), groups=6)
-    (5): ChannelShuffle(0, 0.000% Params, 0.0 Mac, 0.000% MACs, )
-    (6): Conv2d(498.24 k, 2.012% Params, 2.04 GMac, 13.018% MACs, 576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=6)
-    (7): BatchNorm2d(1.15 k, 0.005% Params, 4.72 MMac, 0.030% MACs, 576, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (8): ReLU(0, 0.000% Params, 2.36 MMac, 0.015% MACs, )
-    (9): ConvTranspose2d(110.88 k, 0.448% Params, 1.82 GMac, 11.588% MACs, 576, 288, kernel_size=(2, 2), stride=(2, 2), groups=6)
-    (10): ChannelShuffle(0, 0.000% Params, 0.0 Mac, 0.000% MACs, )
-    (11): BatchNorm2d(576, 0.002% Params, 9.44 MMac, 0.060% MACs, 288, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (12): ReLU(0, 0.000% Params, 4.72 MMac, 0.030% MACs, )
-    (13): ConvTranspose2d(27.79 k, 0.112% Params, 1.82 GMac, 11.618% MACs, 288, 144, kernel_size=(2, 2), stride=(2, 2), groups=6)
-    (14): BatchNorm2d(288, 0.001% Params, 18.87 MMac, 0.120% MACs, 144, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (15): ReLU(0, 0.000% Params, 9.44 MMac, 0.060% MACs, )
-    (16): Conv2d(7.54 k, 0.030% Params, 494.14 MMac, 3.152% MACs, 144, 52, kernel_size=(1, 1), stride=(1, 1))
-)
+  (up): Sequential(
+    (0): ConvTranspose2d(2304, 1152, kernel_size=(2, 2), stride=(2, 2), groups=6)
+    (1): ChannelShuffle()
+    (2): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (3): ReLU()
+    (4): ConvTranspose2d(1152, 576, kernel_size=(2, 2), stride=(2, 2), groups=6)
+    (5): ChannelShuffle()
+    (6): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=6)
+    (7): BatchNorm2d(576, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (8): ReLU()
+    (9): ConvTranspose2d(576, 288, kernel_size=(2, 2), stride=(2, 2), groups=6)
+    (10): ChannelShuffle()
+    (11): BatchNorm2d(288, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (12): ReLU()
+    (13): ConvTranspose2d(288, 144, kernel_size=(2, 2), stride=(2, 2), groups=6)
+    (14): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (15): ReLU()
+    (16): Conv2d(144, 52, kernel_size=(1, 1), stride=(1, 1))
+  )
 ```
 
 # 计算量和参数量说明
