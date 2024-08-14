@@ -24,11 +24,9 @@ class MyDataset(Dataset):
   
         self.datas = datas
         self.transform = transform 
-    def pre_load_data(self):
-        # 读取所有的信号数据集
+    def pre_load_data(self): 
         datas = []
-        root = r"D:\Dataset\2023\ecg\chanllenge2021lead12flatten"
-
+        root = r"" # ==================这里填写你的数据集根目录
         paths = []
         for fname in os.listdir(root):
             if fname.endswith("hea") and fname[0] != 'I':
